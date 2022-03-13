@@ -1,0 +1,7 @@
+{
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": ["src/decorators/*.js"],
+  "rules": {
+    "declaration-block-trailing-semicolon": null
+  }
+}

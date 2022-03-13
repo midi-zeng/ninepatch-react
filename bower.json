@@ -1,0 +1,19 @@
+{
+  "name": "ninepatch-react",
+  "description": "ninepatch-react component",
+  "main": "standalone/ninepatch-react.js",
+  "moduleType": ["globals", "amd", "node"],
+  "license": "MIT",
+  "ignore": ["bin", "example"],
+  "keywords": ["react", "react-component", "tooltip", "ninepatch-react"],
+  "authors": ["midi_zeng"],
+  "homepage": "https://github.com/midi-zeng/ninepatch-react",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/midi-zeng/ninepatch-react"
+  },
+  "dependencies": {
+    "react": ">=0.14",
+    "react-dom": ">=0.14"
+  }
+}
