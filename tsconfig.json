@@ -17,5 +17,5 @@
     "noEmit": true,
     "sourceMap": true
   },
-  "include": ["src", "test", "vite.config.ts"]
+  "include": ["src", "test", "vite.config.ts", "vite.config.demo.ts"]
 }
