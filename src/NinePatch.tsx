@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { NinePatchCore } from 'ninepatch-core'
-import type { NpTcChunkType } from 'ninepatch-core'
+import type { NinePatchData } from 'ninepatch-core'
 import type { NinePatchBoxEdges, NinePatchProps } from './types'
 
 const DEFAULT_EDGES: Required<NinePatchBoxEdges> = { top: 0, right: 0, bottom: 0, left: 0 }
@@ -16,19 +16,19 @@ function edgesToCss(edges: Required<NinePatchBoxEdges>, unit: 'px' | ''): string
 }
 
 /**
- * Derive border-image-slice values from parsed chunk data.
+ * Derive border-image-slice values from parsed render data.
  *
  * The vertical insets come from yDivs and the horizontal ones from xDivs,
  * matching the CSS border-image-slice (top right bottom left) order.
  */
-function chunkToSlice(chunk: NpTcChunkType): Required<NinePatchBoxEdges> {
-  const width = chunk.width ?? 0
-  const height = chunk.height ?? 0
+function renderDataToSlice(data: NinePatchData): Required<NinePatchBoxEdges> {
+  const width = data.width ?? 0
+  const height = data.height ?? 0
   return {
-    top: chunk.yDivs.start,
-    right: width - chunk.xDivs.stop,
-    bottom: height - chunk.yDivs.stop,
-    left: chunk.xDivs.start
+    top: data.yDivs.start,
+    right: width - data.xDivs.stop,
+    bottom: height - data.yDivs.stop,
+    left: data.xDivs.start
   }
 }
 
@@ -39,24 +39,24 @@ function chunkToSlice(chunk: NpTcChunkType): Required<NinePatchBoxEdges> {
  * - Pass `customOptions` to provide the values manually (parsing is skipped).
  */
 export function NinePatch({ src, customOptions, className, style, children }: NinePatchProps) {
-  const [chunk, setChunk] = useState<NpTcChunkType | null>(null)
+  const [renderData, setRenderData] = useState<NinePatchData | null>(null)
 
   useEffect(() => {
     // Manual options win; drop any previously parsed data
     if (!src || customOptions) {
-      setChunk(null)
+      setRenderData(null)
       return
     }
 
     // Guard against races: only the latest src may update the state
     let cancelled = false
     new NinePatchCore(src)
-      .getChunkData()
+      .getRenderData()
       .then(data => {
-        if (!cancelled) setChunk(data)
+        if (!cancelled) setRenderData(data)
       })
       .catch(() => {
-        if (!cancelled) setChunk(null)
+        if (!cancelled) setRenderData(null)
       })
 
     return () => {
@@ -64,9 +64,9 @@ export function NinePatch({ src, customOptions, className, style, children }: Ni
     }
   }, [src, customOptions])
 
-  const padding = resolveEdges(customOptions?.padding ?? chunk?.padding)
-  const slice = resolveEdges(customOptions?.borderImageSlice ?? (chunk ? chunkToSlice(chunk) : undefined))
-  const clipPath = customOptions?.clipPath ?? chunk?.clipPath ?? 0
+  const padding = resolveEdges(customOptions?.padding ?? renderData?.padding)
+  const slice = resolveEdges(customOptions?.borderImageSlice ?? (renderData ? renderDataToSlice(renderData) : undefined))
+  const borderInset = customOptions?.borderInset ?? renderData?.borderInset ?? 0
 
   const css: CSSProperties = {
     height: '100%',
@@ -78,7 +78,7 @@ export function NinePatch({ src, customOptions, className, style, children }: Ni
     paddingRight: padding.right,
     paddingBottom: padding.bottom,
     paddingLeft: padding.left,
-    clipPath: clipPath ? `inset(${clipPath}px)` : undefined,
+    clipPath: borderInset ? `inset(${borderInset}px)` : undefined,
     ...style
   }
 

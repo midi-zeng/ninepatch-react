@@ -30,7 +30,7 @@ export default function App() {
 
       <div className="flex flex-wrap gap-8">
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-slate-600">Raw source (guide border kept, clipPath 1)</h2>
+          <h2 className="mb-2 text-sm font-semibold text-slate-600">Raw source (guide border kept, borderInset 1)</h2>
           <div style={{ width, height: Math.round((width * 122) / 182) }}>
             <NinePatch src={IMAGES.raw}>
               <div className="flex h-full items-center justify-center text-sm">Raw nine-patch</div>

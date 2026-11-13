@@ -2,19 +2,19 @@ import { render, waitFor } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import { NinePatch } from '../src/NinePatch'
 
-const { getChunkData } = vi.hoisted(() => ({
+const { getRenderData } = vi.hoisted(() => ({
   // Never resolves by default so tests that parse must set an explicit result
-  getChunkData: vi.fn(() => new Promise(() => {}))
+  getRenderData: vi.fn(() => new Promise(() => {}))
 }))
 
 vi.mock('ninepatch-core', () => ({
   NinePatchCore: class {
     constructor(public src: string) {}
-    getChunkData = getChunkData
+    getRenderData = getRenderData
   }
 }))
 
-const GOLDEN_CHUNK = {
+const GOLDEN_RENDER_DATA = {
   padding: { left: 10, right: 20, top: 10, bottom: 20 },
   xDivs: { start: 14, stop: 29 },
   yDivs: { start: 14, stop: 29 },
@@ -31,7 +31,7 @@ describe('NinePatch', () => {
   })
 
   test('applies parsed chunk data as border-image styles', async () => {
-    getChunkData.mockResolvedValue(GOLDEN_CHUNK)
+    getRenderData.mockResolvedValue(GOLDEN_RENDER_DATA)
 
     const { container } = render(<NinePatch src="/btn.png">x</NinePatch>)
     const el = container.firstElementChild as HTMLElement
@@ -46,19 +46,19 @@ describe('NinePatch', () => {
   })
 
   test('custom options skip image parsing entirely', () => {
-    getChunkData.mockClear()
+    getRenderData.mockClear()
 
     const { container } = render(
       <NinePatch
         src="/btn.png"
-        customOptions={{ padding: { top: 5 }, borderImageSlice: { left: 2, right: 3 }, clipPath: 1 }}
+        customOptions={{ padding: { top: 5 }, borderImageSlice: { left: 2, right: 3 }, borderInset: 1 }}
       >
         x
       </NinePatch>
     )
     const el = container.firstElementChild as HTMLElement
 
-    expect(getChunkData).not.toHaveBeenCalled()
+    expect(getRenderData).not.toHaveBeenCalled()
     expect(el.style.paddingTop).toBe('5px')
     expect(el.style.paddingRight).toBe('0px')
     expect(el.style.borderImageSlice).toBe('0 3 0 2 fill')
@@ -66,10 +66,10 @@ describe('NinePatch', () => {
   })
 
   test('custom options drop previously parsed chunk data', async () => {
-    getChunkData.mockResolvedValue(GOLDEN_CHUNK)
+    getRenderData.mockResolvedValue(GOLDEN_RENDER_DATA)
 
     const { container, rerender } = render(<NinePatch src="/btn.png">x</NinePatch>)
-    await waitFor(() => expect(getChunkData).toHaveBeenCalled())
+    await waitFor(() => expect(getRenderData).toHaveBeenCalled())
 
     rerender(<NinePatch src="/btn.png" customOptions={{ padding: { left: 7 } }}>
       x
@@ -82,20 +82,20 @@ describe('NinePatch', () => {
 
   test('ignores stale responses after src changes', async () => {
     let resolveA: (value: unknown) => void = () => {}
-    getChunkData.mockImplementation(function (this: { src: string }) {
+    getRenderData.mockImplementation(function (this: { src: string }) {
       if (this.src === '/a.png') {
         return new Promise(resolve => {
           resolveA = resolve
         })
       }
-      return Promise.resolve({ ...GOLDEN_CHUNK, clipPath: 9 })
+      return Promise.resolve({ ...GOLDEN_RENDER_DATA, borderInset: 9 })
     })
 
     const { container, rerender } = render(<NinePatch src="/a.png">x</NinePatch>)
     rerender(<NinePatch src="/b.png">x</NinePatch>)
     await waitFor(() => expect((container.firstElementChild as HTMLElement).style.clipPath).toBe('inset(9px)'))
 
-    resolveA({ ...GOLDEN_CHUNK, clipPath: 1 })
+    resolveA({ ...GOLDEN_RENDER_DATA, borderInset: 1 })
     await new Promise(resolve => setTimeout(resolve, 0))
 
     // the late response for /a.png must not overwrite /b.png
@@ -103,7 +103,7 @@ describe('NinePatch', () => {
   })
 
   test('parse failures render without border-image data', async () => {
-    getChunkData.mockRejectedValue(new Error('network down'))
+    getRenderData.mockRejectedValue(new Error('network down'))
 
     const { container } = render(<NinePatch src="/broken.png">x</NinePatch>)
     await waitFor(() => {

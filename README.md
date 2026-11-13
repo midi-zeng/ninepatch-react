@@ -27,7 +27,7 @@ import { NinePatch } from 'ninepatch-react'
   customOptions={{
     padding: { top: 10, right: 20, bottom: 10, left: 20 },
     borderImageSlice: { top: 14, right: 151, bottom: 91, left: 14 },
-    clipPath: 0
+    borderInset: 0
   }}
 >
   <button>Click me</button>
@@ -39,7 +39,7 @@ import { NinePatch } from 'ninepatch-react'
 | Prop | Type | Description |
 | --- | --- | --- |
 | `src` | `string` | Nine-patch image URL (raw or compiled). |
-| `customOptions` | `object` | Manual `padding` / `borderImageSlice` / `clipPath`; skips parsing. |
+| `customOptions` | `object` | Manual `padding` / `borderImageSlice` / `borderInset`; skips parsing. |
 | `className` | `string` | Applied to the wrapper `div`. |
 | `style` | `CSSProperties` | Merged into the wrapper `div` styles. |
 | `children` | `ReactNode` | Content rendered inside the wrapper. |

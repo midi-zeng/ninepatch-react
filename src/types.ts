@@ -14,7 +14,7 @@ export interface NinePatchBoxEdges {
 export interface NinePatchCustomOptions {
   padding?: NinePatchBoxEdges
   borderImageSlice?: NinePatchBoxEdges
-  clipPath?: number
+  borderInset?: number
 }
 
 export interface NinePatchProps {
