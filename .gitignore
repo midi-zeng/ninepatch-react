@@ -1,14 +1,5 @@
-# system files
+node_modules
+dist
+coverage
 *.log
-.DS_Store*
-.idea/
-
-# push to github
-!.babelrc
-!.gitignore
-!.npmignore
-
-# files
-node_modules/
-dist/
-build/
+.DS_Store
